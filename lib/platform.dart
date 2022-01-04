@@ -33,6 +33,8 @@ class Platform extends PositionComponent
     );
   }
 
+  PlatformEdge? collisionEdge;
+
   @override
   String toString() {
     return name ?? super.toString();
@@ -40,7 +42,7 @@ class Platform extends PositionComponent
 
   PlatformEdge? getPlatformEdge(
     PositionComponent other,
-    Vector2 intersectionPoint,
+    Set<Vector2> points,
   ) {
     if (other.anchor != Anchor.bottomLeft) {
       throw Exception(
@@ -48,26 +50,22 @@ class Platform extends PositionComponent
         'Currently other anchors do not supported for this method',
       );
     }
+    final Vector2 centerPoint =
+        points.reduce((value, element) => (value + element)) /
+            points.length.toDouble();
 
     final right = x + width;
     final bottom = y + height;
-    final double offset = 5;
 
-    if (other.y - other.height < y) {
-      final isInXBounds =
-          other.x + other.width > x + offset && other.x < x + width - offset;
-      if (isInXBounds) {
-        return PlatformEdge.top;
-      }
-    } else if (other.y > bottom) {
+    if (centerPoint.y - other.height <= y) {
+      return PlatformEdge.top;
+    } else if (centerPoint.y >= bottom) {
       return PlatformEdge.bottom;
-    } else if (other.x + other.width > right) {
+    } else if (other.x + other.width >= right) {
       return PlatformEdge.right;
-    } else if (other.x < x) {
+    } else if (other.x <= x) {
       return PlatformEdge.left;
     }
-
-    return null;
   }
 }
 
