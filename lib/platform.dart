@@ -58,14 +58,20 @@ class Platform extends PositionComponent
     final bottom = y + height;
 
     if (centerPoint.y - other.height <= y) {
-      return PlatformEdge.top;
+      collisionEdge = PlatformEdge.top;
     } else if (centerPoint.y >= bottom) {
-      return PlatformEdge.bottom;
+      collisionEdge = PlatformEdge.bottom;
     } else if (other.x + other.width >= right) {
-      return PlatformEdge.right;
+      collisionEdge = PlatformEdge.right;
     } else if (other.x <= x) {
-      return PlatformEdge.left;
+      collisionEdge = PlatformEdge.left;
     }
+    return collisionEdge;
+  }
+
+  @override
+  void onCollisionEnd(Collidable other) {
+    collisionEdge = null;
   }
 }
 

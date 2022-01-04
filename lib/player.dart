@@ -25,9 +25,6 @@ class Player extends SpriteAnimationGroupComponent
   late Timer _jumpTimer;
   double _jumpDelta = 0;
 
-  bool _canMoveLeft = true;
-  bool _canMoveRight = true;
-
   bool get isMovingForward => _velocity.x > 0;
 
   bool get isMovingBack => _velocity.x < 0;
@@ -67,7 +64,7 @@ class Player extends SpriteAnimationGroupComponent
   @override
   void update(double dt) {
     super.update(dt);
-    if ((isMovingForward && _canMoveLeft) || (isMovingBack && _canMoveRight)) {
+    if (isMovingForward || isMovingBack) {
       if (_decelerationTimer.isRunning()) {
         position.x += _velocity.x * (1 - _decelerationTimer.progress) * dt;
       } else {
@@ -78,6 +75,7 @@ class Player extends SpriteAnimationGroupComponent
     if (isLanded) {
       position.y += _velocity.y;
     } else if (_jumpTimer.isRunning()) {
+      print('jumping');
       // calculating jump y delta using sin function with pi offset
       _jumpDelta = sin(_jumpTimer.progress * pi) * _jumpHeight;
       position.y = (_landY - _jumpDelta);
@@ -114,15 +112,13 @@ class Player extends SpriteAnimationGroupComponent
   }
 
   Platform? standingPlatform;
-  Platform? sidePlatform;
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     super.onCollision(intersectionPoints, other);
     if (other is Platform && other != standingPlatform) {
-      final edge = other.getPlatformEdge(this, intersectionPoints.first);
+      final edge = other.getPlatformEdge(this, intersectionPoints);
       if (edge == PlatformEdge.top) {
-        print('top collision $sidePlatform');
         isLanded = true;
         standingPlatform = other;
         _jumpTimer.stop();
@@ -130,22 +126,22 @@ class Player extends SpriteAnimationGroupComponent
         _landY = standingPlatform!.y;
         position.y = _landY;
         setFalling(false);
+        print('collision top');
       }
       if (edge == PlatformEdge.bottom) {
-        setFalling(true);
+        setFalling(standingPlatform == null);
         _jumpTimer.stop();
         _jumpTimer.reset();
+        print('collision bottom');
       }
-      if ((edge == PlatformEdge.left || edge == PlatformEdge.right) &&
-          other != sidePlatform) {
-        sidePlatform = other;
-        print('side collision $sidePlatform');
-        _jumpTimer.stop();
-        _jumpTimer.reset();
-        isLanded = standingPlatform != null;
-        _canMoveRight = edge == PlatformEdge.left;
-        _canMoveLeft = edge == PlatformEdge.right;
-      }
+      // if ((edge == PlatformEdge.left || edge == PlatformEdge.right) &&
+      //     true /*other.collisionEdge == null*/) {
+      //   print('collision side ${other.collisionEdge}');
+      //   _jumpTimer.stop();
+      //   _jumpTimer.reset();
+      //   isLanded = standingPlatform != null;
+      //   setFalling(standingPlatform == null);
+      // }
     }
   }
 
@@ -157,11 +153,5 @@ class Player extends SpriteAnimationGroupComponent
       standingPlatform = null;
       setFalling(true);
     }
-    if (other is Platform && other == sidePlatform) {
-      sidePlatform = null;
-    }
-    print('destroy $sidePlatform');
-    _canMoveLeft = other != sidePlatform && isLanded;
-    _canMoveRight = other != sidePlatform && isLanded;
   }
 }
