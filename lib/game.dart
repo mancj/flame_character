@@ -11,6 +11,7 @@ class TheGame extends FlameGame
     with KeyboardEvents, HasCollidables, HasDraggables, HasTappables {
   late Player _player;
 
+
   @override
   Future<void>? onLoad() async {
     await super.onLoad();
@@ -60,12 +61,6 @@ class TheGame extends FlameGame
 
     final knobPaint = Paint()..color = Colors.blue.withAlpha(200);
     final backgroundPaint = Paint()..color = Colors.blue.withAlpha(100);
-    final joystick = JoystickComponent(
-      knob: CircleComponent(radius: 20, paint: knobPaint),
-      background: CircleComponent(radius: 60, paint: backgroundPaint),
-      margin: const EdgeInsets.only(left: 60, bottom: 60),
-    );
-    // add(joystick);
   }
 
   @override

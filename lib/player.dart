@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 class Player extends SpriteAnimationGroupComponent
     with HasGameRef<TheGame>, HasHitboxes, Collidable {
-  static const double movementSpeed = 100;
+  static const double movementSpeed = 200;
   static const double fallingSpeed = 70;
 
   final _velocity = Vector2(0, 0);
@@ -47,13 +47,13 @@ class Player extends SpriteAnimationGroupComponent
     await super.onLoad();
     addHitbox(HitboxRectangle());
     add(RectangleComponent(size: size));
-    add(
+    /*add(
       CircleComponent(
           radius: 4,
           paint: debugPaint,
           position: Vector2(width / 2, height / 2),
           anchor: Anchor.center),
-    );
+    );*/
 
     _landY = position.y;
     _jumpTimer = Timer(

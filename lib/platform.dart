@@ -40,8 +40,6 @@ class Platform extends PositionComponent
     return name ?? super.toString();
   }
 
-
-
   PlatformEdge? getPlatformEdge(
     PositionComponent other,
     Set<Vector2> points,
@@ -52,13 +50,10 @@ class Platform extends PositionComponent
         'Currently other anchors do not supported for this method',
       );
     }
-    final Vector2 centerPoint =
-        points.reduce((value, element) => (value + element)) /
-            points.length.toDouble();
+    final Vector2 centerPoint = other.center;
 
     final right = x + width;
     final bottom = y + height - 2;
-
 
     /*if (name != '1') {
       print('point at ${centerPoint.y}, ${bottom}');
