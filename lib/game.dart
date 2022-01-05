@@ -34,28 +34,28 @@ class TheGame extends FlameGame
     add(_player = Player(position: Vector2(250, 350), size: Vector2(20, 30)));
     add(
       Platform(
-        blockSize: 50,
+        size: Vector2(400, 50),
         length: 10,
         position: Vector2(100, 350),
         name: '1',
       ),
     );
     add(Platform(
-      blockSize: 50,
+      size: Vector2(100, 50),
       length: 2,
       position: Vector2(350, 300),
       name: '2',
     ));
     add(Platform(
-      blockSize: 50,
+      size: Vector2(100, 50),
       length: 2,
       position: Vector2(100, 300),
       name: '3',
     ));
     add(Platform(
-      blockSize: 50,
+      size: Vector2(200, 200),
       length: 2,
-      position: Vector2(450, 200),
+      position: Vector2(470, 150),
       name: '4',
     ));
 

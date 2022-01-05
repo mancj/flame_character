@@ -83,13 +83,15 @@ class Player extends SpriteAnimationGroupComponent
       }
     }
 
-    if (isLanded) {
-      position.y += _velocity.y;
-    } else if (_jumpTimer.isRunning()) {
+    if (_jumpTimer.isRunning()) {
       // calculating jump y delta using sin function with pi offset
       _jumpDelta = sin(_jumpTimer.progress * pi) * _jumpHeight;
       position.y = (_landY - _jumpDelta);
+    } else if (!isLanded && sidePlatform != null) {
+      // sliding side platform
+      position.y += (fallingSpeed * dt);
     } else {
+      // falling down
       position.y += _velocity.y * (dt * 10);
     }
     _jumpTimer.update(dt);
@@ -117,6 +119,11 @@ class Player extends SpriteAnimationGroupComponent
     _jumpTimer.start();
   }
 
+  void _stopJumpTimer() {
+    _jumpTimer.stop();
+    _jumpTimer.reset();
+  }
+
   void setFalling(bool isFalling) {
     _velocity.y = isFalling ? fallingSpeed : 0;
   }
@@ -129,32 +136,25 @@ class Player extends SpriteAnimationGroupComponent
       if (edge == PlatformEdge.top && other != sidePlatform) {
         isLanded = true;
         standingPlatform = other;
-        _jumpTimer.stop();
-        _jumpTimer.reset();
+        _stopJumpTimer();
         _landY = standingPlatform!.y;
         position.y = _landY;
         setFalling(false);
-        print('collision top');
       }
       if (edge == PlatformEdge.bottom) {
         // sidePlatform = other;
         setFalling(standingPlatform == null);
-        _jumpTimer.stop();
-        _jumpTimer.reset();
-        print('collision bottom');
+        _stopJumpTimer();
       }
       if ((edge == PlatformEdge.left || edge == PlatformEdge.right)) {
-        print('side  collision');
         sidePlatform = other;
 
         _canMoveLeft = edge != PlatformEdge.right;
         _canMoveRight = edge != PlatformEdge.left;
-        //     true /*other.collisionEdge == null*/) {
-        //   print('collision side ${other.collisionEdge}');
-        //   _jumpTimer.stop();
-        //   _jumpTimer.reset();
-        //   isLanded = standingPlatform != null;
-        //   setFalling(standingPlatform == null);
+
+        if (!isLanded && _landY - position.y > 50) {
+          _stopJumpTimer();
+        }
       }
     }
   }
