@@ -9,6 +9,8 @@ class Platform extends PositionComponent
   final double blockSize;
   final int length;
   String? name;
+  PlatformEdge? collisionEdge;
+  final customPaint = Paint()..color = Colors.white;
 
   Platform({
     required this.blockSize,
@@ -33,12 +35,12 @@ class Platform extends PositionComponent
     );
   }
 
-  PlatformEdge? collisionEdge;
-
   @override
   String toString() {
     return name ?? super.toString();
   }
+
+
 
   PlatformEdge? getPlatformEdge(
     PositionComponent other,
@@ -55,15 +57,30 @@ class Platform extends PositionComponent
             points.length.toDouble();
 
     final right = x + width;
-    final bottom = y + height;
+    final bottom = y + height - 2;
 
-    if (centerPoint.y - other.height <= y) {
+
+    /*if (name != '1') {
+      print('point at ${centerPoint.y}, ${bottom}');
+      gameRef.add(CircleComponent(
+        radius: 1,
+        paint: customPaint,
+        position: centerPoint,
+        anchor: Anchor.center,
+      ));
+    }*/
+
+    if (centerPoint.y <= y) {
+      print('Top collistion at ${centerPoint}');
       collisionEdge = PlatformEdge.top;
     } else if (centerPoint.y >= bottom) {
+      print('Bottom collistion at ${centerPoint}');
       collisionEdge = PlatformEdge.bottom;
     } else if (other.x + other.width >= right) {
+      print('Right collistion at ${centerPoint} ');
       collisionEdge = PlatformEdge.right;
     } else if (other.x <= x) {
+      print('Left collistion at ${centerPoint} ');
       collisionEdge = PlatformEdge.left;
     }
     return collisionEdge;

@@ -1,4 +1,3 @@
-import 'dart:collection';
 import 'dart:math';
 
 import 'package:flame/components.dart';
@@ -10,12 +9,17 @@ import 'package:flutter/material.dart';
 
 class Player extends SpriteAnimationGroupComponent
     with HasGameRef<TheGame>, HasHitboxes, Collidable {
-  static const double movementSpeed = 200;
-  static const double fallingSpeed = 40;
+  static const double movementSpeed = 100;
+  static const double fallingSpeed = 70;
 
   final _velocity = Vector2(0, 0);
   double _landY = 0;
   bool isLanded = true;
+  Platform? standingPlatform;
+  Platform? sidePlatform;
+
+  bool _canMoveLeft = true;
+  bool _canMoveRight = true;
 
   /// Used to smoothly stop the player
   /// by deceleration of moving x velocity
@@ -43,6 +47,13 @@ class Player extends SpriteAnimationGroupComponent
     await super.onLoad();
     addHitbox(HitboxRectangle());
     add(RectangleComponent(size: size));
+    add(
+      CircleComponent(
+          radius: 4,
+          paint: debugPaint,
+          position: Vector2(width / 2, height / 2),
+          anchor: Anchor.center),
+    );
 
     _landY = position.y;
     _jumpTimer = Timer(
@@ -64,7 +75,7 @@ class Player extends SpriteAnimationGroupComponent
   @override
   void update(double dt) {
     super.update(dt);
-    if (isMovingForward || isMovingBack) {
+    if ((isMovingForward && _canMoveRight) || (isMovingBack && _canMoveLeft)) {
       if (_decelerationTimer.isRunning()) {
         position.x += _velocity.x * (1 - _decelerationTimer.progress) * dt;
       } else {
@@ -75,7 +86,6 @@ class Player extends SpriteAnimationGroupComponent
     if (isLanded) {
       position.y += _velocity.y;
     } else if (_jumpTimer.isRunning()) {
-      print('jumping');
       // calculating jump y delta using sin function with pi offset
       _jumpDelta = sin(_jumpTimer.progress * pi) * _jumpHeight;
       position.y = (_landY - _jumpDelta);
@@ -111,14 +121,12 @@ class Player extends SpriteAnimationGroupComponent
     _velocity.y = isFalling ? fallingSpeed : 0;
   }
 
-  Platform? standingPlatform;
-
   @override
   void onCollision(Set<Vector2> intersectionPoints, Collidable other) {
     super.onCollision(intersectionPoints, other);
     if (other is Platform && other != standingPlatform) {
       final edge = other.getPlatformEdge(this, intersectionPoints);
-      if (edge == PlatformEdge.top) {
+      if (edge == PlatformEdge.top && other != sidePlatform) {
         isLanded = true;
         standingPlatform = other;
         _jumpTimer.stop();
@@ -129,19 +137,25 @@ class Player extends SpriteAnimationGroupComponent
         print('collision top');
       }
       if (edge == PlatformEdge.bottom) {
+        // sidePlatform = other;
         setFalling(standingPlatform == null);
         _jumpTimer.stop();
         _jumpTimer.reset();
         print('collision bottom');
       }
-      // if ((edge == PlatformEdge.left || edge == PlatformEdge.right) &&
-      //     true /*other.collisionEdge == null*/) {
-      //   print('collision side ${other.collisionEdge}');
-      //   _jumpTimer.stop();
-      //   _jumpTimer.reset();
-      //   isLanded = standingPlatform != null;
-      //   setFalling(standingPlatform == null);
-      // }
+      if ((edge == PlatformEdge.left || edge == PlatformEdge.right)) {
+        print('side  collision');
+        sidePlatform = other;
+
+        _canMoveLeft = edge != PlatformEdge.right;
+        _canMoveRight = edge != PlatformEdge.left;
+        //     true /*other.collisionEdge == null*/) {
+        //   print('collision side ${other.collisionEdge}');
+        //   _jumpTimer.stop();
+        //   _jumpTimer.reset();
+        //   isLanded = standingPlatform != null;
+        //   setFalling(standingPlatform == null);
+      }
     }
   }
 
@@ -152,6 +166,11 @@ class Player extends SpriteAnimationGroupComponent
       isLanded = false;
       standingPlatform = null;
       setFalling(true);
+    }
+    if (other == sidePlatform) {
+      sidePlatform = null;
+      _canMoveLeft = true;
+      _canMoveRight = true;
     }
   }
 }

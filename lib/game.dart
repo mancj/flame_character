@@ -1,17 +1,35 @@
+import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame_character/platform.dart';
 import 'package:flame_character/player.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-class TheGame extends FlameGame with KeyboardEvents, HasCollidables {
+class TheGame extends FlameGame
+    with KeyboardEvents, HasCollidables, HasDraggables, HasTappables {
   late Player _player;
 
   @override
   Future<void>? onLoad() async {
     await super.onLoad();
-    debugMode = true;
+    // debugMode = true;
+    add(ButtonComponent(
+        button: TextComponent(
+          text: 'delete points',
+          textRenderer: TextPaint(
+            style: TextStyle(
+              fontSize: 14,
+            ),
+          ),
+        ),
+        position: Vector2(20, 20),
+        onPressed: () {
+          children.whereType<CircleComponent>().forEach((element) {
+            remove(element);
+          });
+        }));
     add(_player = Player(position: Vector2(250, 350), size: Vector2(20, 30)));
     add(
       Platform(
@@ -39,6 +57,15 @@ class TheGame extends FlameGame with KeyboardEvents, HasCollidables {
       position: Vector2(450, 200),
       name: '4',
     ));
+
+    final knobPaint = Paint()..color = Colors.blue.withAlpha(200);
+    final backgroundPaint = Paint()..color = Colors.blue.withAlpha(100);
+    final joystick = JoystickComponent(
+      knob: CircleComponent(radius: 20, paint: knobPaint),
+      background: CircleComponent(radius: 60, paint: backgroundPaint),
+      margin: const EdgeInsets.only(left: 60, bottom: 60),
+    );
+    // add(joystick);
   }
 
   @override
