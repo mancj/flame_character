@@ -33,6 +33,8 @@ class Player extends SpriteAnimationGroupComponent
 
   bool get isMovingBack => _velocity.x < 0;
 
+  late final Vector2 _cameraTarget;
+
   Player({
     required Vector2 position,
     required Vector2 size,
@@ -47,6 +49,9 @@ class Player extends SpriteAnimationGroupComponent
     await super.onLoad();
     addHitbox(HitboxRectangle());
     add(RectangleComponent(size: size));
+    _cameraTarget = Vector2(0, position.y / 1.2);
+    gameRef.camera.followVector2(_cameraTarget);
+
     /*add(
       CircleComponent(
           radius: 4,
@@ -75,6 +80,7 @@ class Player extends SpriteAnimationGroupComponent
   @override
   void update(double dt) {
     super.update(dt);
+
     if ((isMovingForward && _canMoveRight) || (isMovingBack && _canMoveLeft)) {
       if (_decelerationTimer.isRunning()) {
         position.x += _velocity.x * (1 - _decelerationTimer.progress) * dt;
@@ -96,6 +102,7 @@ class Player extends SpriteAnimationGroupComponent
     }
     _jumpTimer.update(dt);
     _decelerationTimer.update(dt);
+    _cameraTarget.x = position.x;
   }
 
   void move(AxisDirection direction) {

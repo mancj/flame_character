@@ -16,7 +16,7 @@ class TheGame extends FlameGame
   Future<void>? onLoad() async {
     await super.onLoad();
     // debugMode = true;
-    add(ButtonComponent(
+   /* add(ButtonComponent(
         button: TextComponent(
           text: 'delete points',
           textRenderer: TextPaint(
@@ -30,7 +30,7 @@ class TheGame extends FlameGame
           children.whereType<CircleComponent>().forEach((element) {
             remove(element);
           });
-        }));
+        }));*/
     add(_player = Player(position: Vector2(250, 350), size: Vector2(20, 30)));
     add(
       Platform(
